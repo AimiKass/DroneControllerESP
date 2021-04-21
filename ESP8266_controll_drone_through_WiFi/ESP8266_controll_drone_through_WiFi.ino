@@ -9,12 +9,13 @@ const int port = 1234;
 WiFiServer wifiServer(port);
 
 
-
 unsigned long previousMillis = 0;
 
-const long interval = 1500;
+const long interval = 2000;
 
-//==========================
+int static interuptSensitivity = 6;
+
+const int channelError = 3;
 
 //Connect with FlightController
 #define CH1_Output 2 //ROLL_FROM_PC
@@ -36,7 +37,7 @@ Servo servo_3;
 Servo servo_4;
 Servo servo_5;
 
-int static interuptSensitivity = 4;
+
 
 int CH1_Receiver_Old = 0;
 int CH2_Receiver_Old = 0;
@@ -48,13 +49,13 @@ bool CH2_Interrupts_Is = false;
 bool CH3_Interrupts_Is = false;
 bool CH4_Interrupts_Is = false;
 
-//==========================
+
 
 
 void setup()
 {
 
-  //==========================
+  
   servo_1.attach(CH1_Output);
   servo_2.attach(CH2_Output);
   servo_3.attach(CH3_Output);
@@ -71,7 +72,7 @@ void setup()
   attachInterrupt(digitalPinToInterrupt(CH3_Input), CH3_INTERRUPT, RISING);
   attachInterrupt(digitalPinToInterrupt(CH4_Input), CH4_INTERRUPT, RISING);
 
-  //==========================
+  
 
   Serial.begin(115200);
   Serial.println();
@@ -129,7 +130,7 @@ void loop()
 
             //================================================
 
-            //every interval(1.5) seconds gives the computer drone controll
+            //every interval(1.5) seconds gives the computer drone control
             unsigned long currentMillis = millis();
             if (currentMillis - previousMillis >= interval)
             {
@@ -142,14 +143,14 @@ void loop()
             {
               case 1:
                 if (!CH1_Interrupts_Is)
-                  servo_1.writeMicroseconds(servoData % 10000);
+                  servo_1.writeMicroseconds((servoData % 10000)-channelError);
                 break;
               case 2:
                 if (!CH2_Interrupts_Is)
-                  servo_2.writeMicroseconds(servoData % 10000);
+                  servo_2.writeMicroseconds((servoData % 10000)-channelError);
                 break;
               case 3:
-                servo3_new = (servoData % 10000);
+                servo3_new = ((servoData % 10000) - 5);
                 if (!(servo3_new == servo3_old))
                 {
                   if (!CH3_Interrupts_Is)
@@ -161,7 +162,7 @@ void loop()
                 break;
               case 4:
                 if (!CH4_Interrupts_Is)
-                  servo_4.writeMicroseconds(servoData % 10000);
+                  servo_4.writeMicroseconds((servoData % 10000)-channelError);
                 break;
               case 5:
                 servo_5.writeMicroseconds(servoData % 10000);
